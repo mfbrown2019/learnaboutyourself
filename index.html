@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Assignment 1 Matthew Brown</title>
+  <script src="https://d3js.org/d3.v5.min.js"></script>
+  <style>
+    /* Add some basic styling to the tooltip */
+    .tooltip {
+      position: absolute;
+      background-color: white;
+      border: 1px solid #ccc;
+      padding: 10px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Create a container for the graph with some margin -->
+<div id="graph-container" style="margin: 20px;"></div>
+
+<script>
+// Your data
+const data = [
+    { id: 1, map: "Inferno", date: "2024-01-14", score: "15 : 15", kills: 33, deaths: 24, kd: 1.38, aim: 68, utility: 50 },
+    { id: 2, map: "Mirage", date: "2024-01-14", score: "13 : 11", kills: 13, deaths: 6, kd: 0.72, aim: 60, utility: 33 },
+    { id: 3, map: "Mirage", date: "2024-01-14", score: "9 : 13", kills: 17, deaths: 19, kd: -0.89, aim: 66, utility: 38 },
+    { id: 4, map: "Dust2", date: "2024-01-13", score: "13 : 9", kills: 12, deaths: 16, kd: 0.75, aim: 58, utility: 40 },
+    { id: 5, map: "Office", date: "2024-01-13", score: "13 : 10", kills: 15, deaths: 14, kd: 1.07, aim: 45, utility: 56 },
+    { id: 6, map: "Mirage", date: "2024-01-13", score: "1 : 13", kills: 6, deaths: 14, kd: -0.43, aim: 55, utility: 45 },
+    { id: 7, map: "Overpass", date: "2024-01-13", score: "13 : 7", kills: 23, deaths: 14, kd: 1.64, aim: 85, utility: 43 },
+    { id: 8, map: "Mirage", date: "2024-01-13", score: "9 : 13", kills: 11, deaths: 19, kd: -0.58, aim: 45, utility: 30 },
+    { id: 9, map: "Mirage", date: "2024-01-13", score: "13 : 3", kills: 16, deaths: 13, kd: 1.23, aim: 40, utility: 41 },
+    { id: 10, map: "Inferno", date: "2024-01-13", score: "13 : 7", kills: 22, deaths: 16, kd: 1.38, aim: 59, utility: 46 },
+    { id: 11, map: "Anubis", date: "2024-01-13", score: "3 : 13", kills: 12, deaths: 15, kd: -0.8, aim: 59, utility: 54 },
+    { id: 12, map: "Overpass", date: "2024-01-13", score: "16 : 14", kills: 28, deaths: 19, kd: 1.47, aim: 58, utility: 47 },
+    { id: 13, map: "Overpass", date: "2024-01-12", score: "13 : 11", kills: 23, deaths: 16, kd: 1.44, aim: 65, utility: 36 },
+    { id: 14, map: "Nuke", date: "2024-01-12", score: "13 : 8", kills: 21, deaths: 17, kd: 1.24, aim: 58, utility: 65 },
+    { id: 15, map: "Anubis", date: "2024-01-12", score: "13 : 10", kills: 31, deaths: 14, kd: 2.21, aim: 84, utility: 75 },
+    { id: 16, map: "Mirage", date: "2024-01-12", score: "11 : 13", kills: 18, deaths: 20, kd: -0.9, aim: 42, utility: 44 },
+    { id: 17, map: "Inferno", date: "2024-01-12", score: "16 : 14", kills: 33, deaths: 21, kd: 1.57, aim: 67, utility: 39 },
+    { id: 18, map: "Mirage", date: "2024-01-11", score: "4 : 13", kills: 15, deaths: 14, kd: -1.07, aim: 77, utility: 41 },
+    { id: 19, map: "Nuke", date: "2024-01-11", score: "13 : 7", kills: 10, deaths: 17, kd: 0.59, aim: 32, utility: 42 },
+    { id: 20, map: "Overpass", date: "2024-01-11", score: "13 : 10", kills: 15, deaths: 17, kd: 0.88, aim: 32, utility: 58 },
+    { id: 21, map: "Overpass", date: "2024-01-11", score: "13 : 11", kills: 28, deaths: 18, kd: 1.56, aim: 57, utility: 59 },
+    { id: 22, map: "Vertigo", date: "2024-01-11", score: "13 : 16", kills: 32, deaths: 20, kd: 1.6, aim: 57, utility: 39 },
+    { id: 23, map: "Mirage", date: "2024-01-11", score: "7 : 13", kills: 17, deaths: 14, kd: -1.21, aim: 63, utility: 43 },
+    { id: 24, map: "Overpass", date: "2024-01-10", score: "13 : 6", kills: 25, deaths: 8, kd: 3.13, aim: 63, utility: 29 },
+    { id: 25, map: "Anubis", date: "2024-01-10", score: "13 : 11", kills: 43, deaths: 12, kd: 3.58, aim: 81, utility: 77 },
+    { id: 26, map: "Nuke", date: "2024-01-09", score: "13 : 10", kills: 21, deaths: 18, kd: 1.17, aim: 49, utility: 13 },
+    { id: 27, map: "Inferno", date: "2024-01-09", score: "16 : 12", kills: 26, deaths: 19, kd: 1.37, aim: 55, utility: 47 },
+    { id: 28, map: "Overpass", date: "2024-01-08", score: "10 : 13", kills: 26, deaths: 15, kd: -1.73, aim: 42, utility: 52 },
+    { id: 29, map: "Anubis", date: "2024-01-07", score: "15 : 15", kills: 26, deaths: 23, kd: 1.13, aim: 72, utility: 44 },
+    { id: 30, map: "Overpass", date: "2024-01-07", score: "6 : 5", kills: 8, deaths: 7, kd: 1.14, aim: 58, utility: 21 },
+    { id: 31, map: "Vertigo", date: "2024-01-07", score: "13 : 16", kills: 30, deaths: 20, kd: 1.5, aim: 79, utility: 57 },
+    { id: 32, map: "Inferno", date: "2024-01-06", score: "11 : 13", kills: 23, deaths: 17, kd: -1.35, aim: 65, utility: 22 },
+    { id: 33, map: "Dust2", date: "2024-01-06", score: "3 : 13", kills: 18, deaths: 15, kd: -1.2, aim: 34, utility: 63 },
+    { id: 34, map: "Office", date: "2024-01-05", score: "10 : 13", kills: 17, deaths: 17, kd: -1, aim: 43, utility: 45 },
+    { id: 35, map: "Anubis", date: "2024-01-05", score: "5 : 13", kills: 14, deaths: 17, kd: -0.82, aim: 55, utility: 64 },
+    { id: 36, map: "Nuke", date: "2024-01-05", score: "4 : 13", kills: 9, deaths: 14, kd: -0.64, aim: 40, utility: 41 },
+    { id: 37, map: "Anubis", date: "2024-01-05", score: "12 : 16", kills: 20, deaths: 22, kd: -0.91, aim: 79, utility: 41 },
+    { id: 38, map: "Office", date: "2024-01-04", score: "13 : 9", kills: 27, deaths: 17, kd: 1.59, aim: 72, utility: 68 },
+    { id: 39, map: "Anubis", date: "2024-01-04", score: "13 : 10", kills: 20, deaths: 14, kd: 1.43, aim: 79, utility: 37 },
+    { id: 40, map: "Office", date: "2024-01-03", score: "3 : 13", kills: 16, deaths: 11, kd: -1.45, aim: 58, utility: 31 },
+    { id: 41, map: "Mirage", date: "2024-01-03", score: "11 : 13", kills: 36, deaths: 15, kd: -2.4, aim: 90, utility: 56 },
+    { id: 42, map: "Mirage", date: "2024-01-03", score: "13 : 16", kills: 40, deaths: 21, kd: -1.9, aim: 81, utility: 60 },
+    { id: 43, map: "Inferno", date: "2024-01-03", score: "7 : 13", kills: 21, deaths: 14, kd: -1.5, aim: 59, utility: 25 },
+    { id: 44, map: "Nuke", date: "2024-01-02", score: "13 : 9", kills: 25, deaths: 19, kd: 1.32, aim: 68, utility: 51 },
+    { id: 45, map: "Overpass", date: "2024-01-02", score: "11 : 13", kills: 28, deaths: 20, kd: -1.4, aim: 70, utility: 45 },
+    { id: 46, map: "Mirage", date: "2024-01-02", score: "16 : 14", kills: 29, deaths: 16, kd: 1.81, aim: 73, utility: 33 },
+    { id: 47, map: "Dust2", date: "2024-01-02", score: "13 : 10", kills: 20, deaths: 14, kd: 1.43, aim: 62, utility: 28 },
+    { id: 48, map: "Inferno", date: "2024-01-01", score: "13 : 6", kills: 24, deaths: 15, kd: 1.6, aim: 68, utility: 55 },
+    { id: 49, map: "Nuke", date: "2024-01-01", score: "16 : 14", kills: 35, deaths: 22, kd: 1.59, aim: 75, utility: 49 },
+    { id: 50, map: "Mirage", date: "2024-01-01", score: "16 : 13", kills: 33, deaths: 21, kd: 1.57, aim: 74, utility: 37 },
+    { id: 51, map: "Overpass", date: "2023-12-31", score: "13 : 9", kills: 19, deaths: 15, kd: 1.27, aim: 61, utility: 42 },
+    { id: 52, map: "Dust2", date: "2023-12-31", score: "10 : 13", kills: 18, deaths: 19, kd: -0.95, aim: 53, utility: 46 },
+    { id: 53, map: "Anubis", date: "2023-12-31", score: "16 : 12", kills: 30, deaths: 18, kd: 1.67, aim: 70, utility: 40 },
+    { id: 54, map: "Inferno", date: "2023-12-30", score: "13 : 9", kills: 21, deaths: 17, kd: 1.24, aim: 66, utility: 34 },
+    { id: 55, map: "Mirage", date: "2023-12-30", score: "7 : 13", kills: 15, deaths: 20, kd: -0.75, aim: 55, utility: 58 },
+    { id: 56, map: "Overpass", date: "2023-12-30", score: "13 : 11", kills: 22, deaths: 15, kd: 1.47, aim: 62, utility: 39 },
+    { id: 57, map: "Nuke", date: "2023-12-29", score: "16 : 14", kills: 31, deaths: 21, kd: 1.48, aim: 75, utility: 57 },
+    { id: 58, map: "Anubis", date: "2023-12-29", score: "13 : 9", kills: 23, deaths: 17, kd: 1.35, aim: 68, utility: 46 },
+    { id: 59, map: "Mirage", date: "2023-12-29", score: "11 : 13", kills: 27, deaths: 19, kd: -1.42, aim: 70, utility: 38 },
+    { id: 60, map: "Overpass", date: "2023-12-29", score: "13 : 10", kills: 22, deaths: 14, kd: 1.57, aim: 78, utility: 50 },
+    { id: 61, map: "Nuke", date: "2023-12-28", score: "16 : 10", kills: 29, deaths: 18, kd: 1.61, aim: 76, utility: 43 }
+    ];
+
+// Set up the SVG dimensions with margins
+const margin = { top: 20, right: 20, bottom: 20, left: 60 };
+const width = 900 - margin.left - margin.right;
+const height = 700 - margin.top - margin.bottom;
+
+// Create an SVG container with margins
+const svg = d3.select("#graph-container")
+  .append("svg")
+  .attr("width", width + margin.left + margin.right)
+  .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+  .attr("transform", `translate(${margin.left},${margin.top})`);
+
+// Create scales for x and y axes
+const xScale = d3.scaleLinear()
+  .domain([0, 61])
+  .range([0, width]);
+
+const yScale = d3.scaleLinear()
+  .domain([-3, 4])
+  .range([height, 0]);
+
+// Create the line function
+const line = d3.line()
+  .x(d => xScale(d.id))
+  .y(d => yScale(d.kd));
+
+// Append the line to the SVG
+svg.append("path")
+  .data([data])
+  .attr("class", "line")
+  .attr("d", line)
+  .attr("fill", "none")
+  .attr("stroke", "steelblue")
+  .attr("stroke-width", 2);
+
+// Append circles to represent data points
+svg.selectAll(".dot")
+  .data(data)
+  .enter().append("circle")
+  .attr("class", "dot")
+  .attr("cx", d => xScale(d.id))
+  .attr("cy", d => yScale(d.kd))
+  .attr("r", 5)
+  .on("mouseover", showTooltip)
+  .on("mouseout", hideTooltip);
+
+// Create x-axis
+svg.append("g")
+  .attr("transform", `translate(0, ${height / 2})`)
+  .call(d3.axisBottom(xScale));
+
+// Add x-axis label
+svg.append("text")
+  .attr("transform", `translate(${width / 2}, ${height + margin.bottom})`)
+  .style("text-anchor", "middle")
+  .text("Matches");
+
+// Create y-axis on the left
+svg.append("g")
+  .call(d3.axisLeft(yScale));
+
+// Add y-axis label
+svg.append("text")
+  .attr("transform", "rotate(-90)")
+  .attr("y", -margin.left)
+  .attr("x", -height / 2)
+  .attr("dy", "1em")
+  .style("text-anchor", "middle")
+  .text("K/D Ratio");
+
+// Create a tooltip
+const tooltip = d3.select("body")
+  .append("div")
+  .attr("class", "tooltip");
+
+// Function to show tooltip
+function showTooltip(d) {
+  tooltip.style("display", "block")
+    .html(`Map: <strong>${d.map.toUpperCase()}</strong> Score: <strong>${d.score}</strong><br>K/D: <strong>${d.kd}</strong> Date: <strong>${d.date}</strong><br>Kills: <strong>${d.kills}</strong> Deaths: <strong>${d.deaths}</strong><br>Aim: <strong>${d.aim}</strong> Utility: <strong>${d.utility}</strong>`)
+    .style("left", (d3.event.pageX + 10) + "px")
+    .style("top", (d3.event.pageY - 10) + "px");
+}
+
+// Function to hide tooltip
+function hideTooltip() {
+  tooltip.style("display", "none");
+}
+
+</script>
+
+</body>
+</html>
